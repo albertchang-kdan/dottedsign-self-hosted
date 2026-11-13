@@ -1,4 +1,4 @@
-FROM node:22.21.1-bullseye-slim AS base
+FROM node:22.21.1-bookworm-slim AS base
 
 ARG WORKDIR=/app
 WORKDIR ${WORKDIR}

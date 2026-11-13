@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2026_06_08_000001) do
+ActiveRecord::Schema.define(version: 2026_11_13_000001) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -568,6 +568,14 @@ ActiveRecord::Schema.define(version: 2026_06_08_000001) do
     t.bigint "group_id", null: false
     t.string "name"
     t.index ["group_id"], name: "index_system_cas_on_group_id"
+  end
+
+  create_table "system_settings", force: :cascade do |t|
+    t.string "key", null: false
+    t.json "value", default: {}
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["key"], name: "index_system_settings_on_key", unique: true
   end
 
   create_table "taggings", id: :serial, force: :cascade do |t|

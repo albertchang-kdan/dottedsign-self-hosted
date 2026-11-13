@@ -24,6 +24,8 @@ development: &development
       placeholder: null
       visible_ca: false
       photo: false
+      # record the signer on video (camera + microphone) while they draw this signature
+      recording: false
     textfield:
       force: true
       default: ""

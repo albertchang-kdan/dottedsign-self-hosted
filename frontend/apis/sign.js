@@ -221,6 +221,24 @@ export const putSigns = ({ data }) => {
   return invokeApi(param);
 };
 
+// NOTE: signing recordings of a task that the current member may watch
+export const getSigningRecordings = ({ taskId, envelopeId, code }) => {
+  const accessToken = Cookie.get("access_token");
+
+  const param = {
+    app: "sign",
+    path: `${PATH.signTask}/signing_recordings`,
+    method: "GET",
+    accessToken,
+    data: {
+      ...(envelopeId ? { envelope_id: envelopeId } : { sign_task_id: taskId }),
+      ...(code ? { code } : {}),
+    },
+  };
+
+  return invokeApi(param);
+};
+
 export const saveSign = (data) => {
   const accessToken = Cookie.get("access_token");
   const param = {

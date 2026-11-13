@@ -80,6 +80,8 @@ module Kiosk
       field_setting_check
       field_setting_group_check
       attachment_check
+      # each kiosk signer has their own stage, so each gets their own consent + recording
+      signing_recording_check
     end
 
   end

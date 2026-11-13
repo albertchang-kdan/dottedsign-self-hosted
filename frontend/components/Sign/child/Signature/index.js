@@ -4,6 +4,7 @@ import SignInput from "./SignInput";
 import Panel from "../../../../containers/PanelSign";
 import PanelGuest from "../../../../containers/PanelSignGuest";
 import SignBoardPhoto from "../../../../containers/SignBoardPhoto";
+import SignBoardRecording from "../../../../containers/SignBoardRecording";
 import { Wrapper } from "./styled";
 
 const Signature = ({
@@ -22,6 +23,8 @@ const Signature = ({
   const { isFake } = useSelector((state) => state.auth);
 
   const isPhotoSignature = options?.photo || false;
+  // NOTE: field option: record the signer on video while drawing this signature
+  const isRecordedSignature = options?.recording || false;
 
   useEffect(() => {
     return () => {
@@ -51,6 +54,9 @@ const Signature = ({
 
     if (isPhotoSignature) {
       return <SignBoardPhoto {...attr} signId={signId} />;
+    }
+    if (isRecordedSignature) {
+      return <SignBoardRecording {...attr} signId={signId} />;
     }
     if (isFastSigning) {
       return <PanelGuest {...attr} />;

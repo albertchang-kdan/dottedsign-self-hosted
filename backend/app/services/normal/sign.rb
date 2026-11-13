@@ -14,6 +14,8 @@ module Normal
       # skip verify step if called from envelope sign
       @skip_verify ? setup_source : verify_for_sign
       sign_the_task
+      # recorded before the 'signed' event so 'signed' stays the stage's last action
+      record_signing_recording_event
       record_sign_event
       record_sign_log
       notify_task_members
@@ -51,6 +53,12 @@ module Normal
       stage_info = @stage.basic_info
       stage_info[:other_info] = { 'stage_last_action' => true } if @stage.done?
       @event = @task.add_sign_event(:signed, @signer.id, stage_info: stage_info, client_info: @client_info, other_info: { action_mode: @action_mode }, action_time: @datetime)
+    end
+
+    # Audit trail entry for the video clips recorded while this signer drew their signatures.
+    def record_signing_recording_event(member_id: @signer&.id, action_mode: @action_mode)
+      SigningRecordingAudit.record(source: @task, event_stage: @stage, member_id: member_id, sign_info: @sign_info, client_info: @client_info,
+                                   action_mode: action_mode, action_time: @datetime)
     end
 
     def record_sign_log

@@ -12,6 +12,7 @@ module Form
     def call
       verify_for_sign
       sign_the_task
+      record_signing_recording_event
       record_sign_event
       record_sign_log
       notify_task_members

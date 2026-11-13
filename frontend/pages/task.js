@@ -12,6 +12,7 @@ import Head from "../components/head";
 import Toast from "../containers/Toast";
 import Modal from "../containers/Modal";
 import PdfViewer from "../containers/PdfViewer";
+import SigningRecordings from "../containers/SigningRecordings";
 import { PageWrapper } from "../global/styled";
 
 const Pdf = () => {
@@ -119,6 +120,7 @@ const Pdf = () => {
       <Toast />
       <Modal />
       {!isSSR && <PdfViewer isGuestSign={isFastSigning} />}
+      {!isSSR && <SigningRecordings />}
     </PageWrapper>
   );
 };

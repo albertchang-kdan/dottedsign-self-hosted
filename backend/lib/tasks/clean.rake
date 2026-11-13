@@ -62,10 +62,10 @@ namespace :clean do
   desc 'clean unused photo signature older than 3 days'
   task :unused_photo_signature => :environment do
     puts "[#{Time.zone.now}] Start clean unused photo signature"
-    signatures = Signature.photo_category.where('updated_at < ?', 3.days.ago).where("other_info ->> 'field_setting_id' IS NULL").destroy_all
+    signatures = Signature.field_bound_category.where('updated_at < ?', 3.days.ago).where("other_info ->> 'field_setting_id' IS NULL").destroy_all
     puts "[#{Time.zone.now}] Clean #{signatures.count} unused photo signature"
 
-    guest_signatures = GuestSignature.photo_category.where('updated_at < ?', 3.days.ago).where("other_info ->> 'field_setting_id' IS NULL").destroy_all
+    guest_signatures = GuestSignature.field_bound_category.where('updated_at < ?', 3.days.ago).where("other_info ->> 'field_setting_id' IS NULL").destroy_all
     puts "[#{Time.zone.now}] Clean #{guest_signatures.count} unused photo guest signature"
   end
 end

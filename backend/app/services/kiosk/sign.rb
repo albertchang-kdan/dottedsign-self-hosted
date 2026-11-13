@@ -11,6 +11,8 @@ module Kiosk
     def call
       verify_for_sign
       sign_the_task
+      # kiosk signers are not members: no action member, mode 'kiosk'
+      record_signing_recording_event(member_id: nil, action_mode: 'kiosk')
       record_sign_event
       notify_task_owner
       @result = @task

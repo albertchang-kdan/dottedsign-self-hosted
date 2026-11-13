@@ -22,6 +22,7 @@ en:
       declined: "Declined"
       ca_failed: "CA Failed"
       reissue: "Reissue"
+      signing_recorded: "Video Recorded (with consent)"
     sign_mode:
       in_person: "In-Person"
       self: "Self"
@@ -90,6 +91,7 @@ ja:
       declined: "拒否しました"
       ca_failed: "CAに失敗しました"
       reissue: "再発行"
+      signing_recorded: "録画済み（同意あり）"
     sign_mode:
       in_person: "対面モード"
       self: "自己署名"
@@ -158,6 +160,7 @@ zh-TW:
       declined: "拒絕簽署"
       ca_failed: "CA失敗"
       reissue: "重新發送"
+      signing_recorded: "已錄影（已取得同意）"
     sign_mode:
       in_person: "當面簽署"
       self: "自己簽署"
@@ -226,6 +229,7 @@ zh-CN:
       declined: "拒绝签署"
       ca_failed: "CA失败"
       reissue: "重新发送"
+      signing_recorded: "已录像（已取得同意）"
     sign_mode:
       in_person: "当面签署"
       self: "自己签署"

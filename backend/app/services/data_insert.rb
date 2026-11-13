@@ -202,7 +202,9 @@ class DataInsert < ServiceCaller
     signature_info = find_signature_for(sign_data)
     return if signature_info.nil?
     signature = signature_info[:record]
-    return unless signature.category == 'signature_with_photo'
-    signature.update!(other_info: { task_id: field_setting.source_id, field_setting_id: field_setting.id })
+    # one-time signatures (photo and/or signing recording) are bound to the field they signed;
+    # keep the recording details stored on the signature
+    return unless Signature::FIELD_BOUND_CATEGORIES.include?(signature.category)
+    signature.update!(other_info: (signature.other_info || {}).merge('task_id' => field_setting.source_id, 'field_setting_id' => field_setting.id))
   end
 end

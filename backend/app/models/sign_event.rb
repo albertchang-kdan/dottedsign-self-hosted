@@ -11,7 +11,7 @@ class SignEvent < ApplicationRecord
   has_one :sign_log
   has_one :review_log
 
-  scope :activity_history_actions, -> { where(action_name: ['created', 'sent', 'signed', 'verified', 'signer_changed', 'declined', 'ca_failed', 'reissue', 'review_passed', 'review_rejected']) }
+  scope :activity_history_actions, -> { where(action_name: ['created', 'sent', 'signed', 'verified', 'signer_changed', 'declined', 'ca_failed', 'reissue', 'review_passed', 'review_rejected', 'signing_recorded']) }
   scope :with_display_content, -> { includes(:action_member, :sign_task, stage: [:actor]) }
   scope :modified_action, -> { where(action_name: ['created', 'modified', 'sent', 'signed', 'signer_changed', 'declined']) }
   scope :canceled, -> { where(action_name: ['declined']).or(where(task_expired: true)) }
@@ -84,6 +84,8 @@ class SignEvent < ApplicationRecord
 
   def timeline_display(member_id)
     return if task_type == 'sign_and_send' && action_name == 'created'
+    # shown in the audit trail only; the member timeline keeps its existing action types
+    return if action_name == 'signing_recorded'
     {
       created_at: created_at.to_i,
       file_status: file_status(member_id),

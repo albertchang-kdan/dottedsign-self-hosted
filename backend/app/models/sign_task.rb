@@ -245,8 +245,8 @@ class SignTask < ApplicationRecord
     sign_stages.each do |sign_stage|
       sign_stage.service_files.each(&:delete_file)
     end
-    Signature.photo_category.where("other_info ->> 'field_setting_id' IN (?)", field_settings.pluck(:id).map(&:to_s)).destroy_all
-    GuestSignature.photo_category.where("other_info ->> 'field_setting_id' IN (?)", field_settings.pluck(:id).map(&:to_s)).destroy_all
+    Signature.field_bound_category.where("other_info ->> 'field_setting_id' IN (?)", field_settings.pluck(:id).map(&:to_s)).destroy_all
+    GuestSignature.field_bound_category.where("other_info ->> 'field_setting_id' IN (?)", field_settings.pluck(:id).map(&:to_s)).destroy_all
   end
 
   def obtain_all_service_file_ids

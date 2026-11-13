@@ -43,6 +43,11 @@ class Stage < ApplicationRecord
     end
   end
 
+  # any of this signer's signature fields records them on video while signing (options.recording)
+  def signing_recording_required?
+    field_settings.any? { |field_setting| field_setting.field_type == 'signature' && ActiveModel::Type::Boolean.new.cast(field_setting.options['recording']) }
+  end
+
   def format_stage_attachment_settings(attachment_settings,viewable_attachment_id_map = {})
     attachment_settings.each_with_index do |setting, setting_index|
       setting[:force] = ActiveModel::Type::Boolean.new.cast(setting[:force]) || false

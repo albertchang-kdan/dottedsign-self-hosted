@@ -16,7 +16,10 @@ module Envelopes
         sign_the_tasks
       end
 
-      record_sign_event # not the main flow (no need to be in transaction)
+      # not the main flow (no need to be in transaction); recording entry first so 'signed' stays last
+      SigningRecordingAudit.record(source: @envelope, event_stage: @stage, member_id: @signer.id,
+                                   sign_info: @sign_info, client_info: @client_info, action_mode: @action_mode)
+      record_sign_event
       @result = envelope_info
     end
 

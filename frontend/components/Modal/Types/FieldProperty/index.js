@@ -29,6 +29,10 @@ import Font from "./Properties/Font";
 import Placeholder from "./Properties/Placeholder";
 import Default from "./Properties/Default";
 
+// NOTE: how the signer is captured while drawing a signature: nothing, a photo, or a video recording
+// (camera + microphone) - one choice per signature field (options.photo / options.recording)
+const CAPTURE_MODES = ["none", "photo", "recording"];
+
 const FieldProperty = ({ onModalClose, data }) => {
   const { t } = useTranslation("modal");
   const isVisibleCA = useLicenseHook(LICENSE_TYPE.SYSTEM_CA);
@@ -69,8 +73,18 @@ const FieldProperty = ({ onModalClose, data }) => {
     setMyOption({ ...myOption, force: !myOption.force });
   };
 
-  const onUpdatePhoto = () => {
-    setMyOption({ ...myOption, photo: !myOption.photo });
+  const captureMode = myOption.recording
+    ? "recording"
+    : myOption.photo
+    ? "photo"
+    : "none";
+
+  const onCaptureModeChange = (mode) => {
+    setMyOption({
+      ...myOption,
+      photo: mode === "photo",
+      recording: mode === "recording",
+    });
   };
 
   const onUpdateFieldId = useCallback((custom_id) => {
@@ -194,15 +208,19 @@ const FieldProperty = ({ onModalClose, data }) => {
                 </Block>
               )}
               <Block>
-                <Label>{t("is_photo_on_sign")}</Label>
-                <Hint>{t("photo_on_sign_hint")}</Hint>
-                <Item>
-                  <Checkbox
-                    isChecked={myOption.photo}
-                    onToggle={onUpdatePhoto}
-                  />
-                  <ChkboxHint>{t("yes")}</ChkboxHint>
-                </Item>
+                <Label>{t("sign_capture_mode")}</Label>
+                <Hint>{t("sign_capture_mode_hint")}</Hint>
+                {CAPTURE_MODES.map((mode) => (
+                  <Item key={mode}>
+                    <Checkbox
+                      id={`FieldProperty-capture-${mode}`}
+                      isRadio
+                      isChecked={captureMode === mode}
+                      onToggle={() => onCaptureModeChange(mode)}
+                    />
+                    <ChkboxHint>{t(`sign_capture_${mode}`)}</ChkboxHint>
+                  </Item>
+                ))}
               </Block>
             </>
           )}

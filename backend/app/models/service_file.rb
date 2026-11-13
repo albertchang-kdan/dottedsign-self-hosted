@@ -18,6 +18,10 @@ class ServiceFile < ApplicationRecord
   ALLOW_FILE_TYPES = %w[msword vnd.openxmlformats-officedocument.wordprocessingml.document vnd.ms-powerpoint
                       vnd.openxmlformats-officedocument.presentationml.presentation vnd.ms-excel vnd.openxmlformats-officedocument.spreadsheetml.sheet
                       zip x-rar vnd.rar x-rar-compressed x-7z-compressed gif pdf png jpg jpeg].freeze
+  # Signing recordings: camera + microphone clips recorded while a signer draws a signature,
+  # stored on the signature (Signature::Storable#attach_signing_recording).
+  SIGNING_RECORDING_LABEL = 'signing_recording'.freeze
+  SIGNING_RECORDING_FILE_TYPES = %w[webm x-matroska mp4].freeze
 
   class << self
 

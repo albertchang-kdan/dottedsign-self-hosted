@@ -607,4 +607,6 @@ export const SIGNATURE_CATEGORY = {
   SIGNATURE: "signature",
   INITIAL: "initial",
   SIGNATURE_WITH_PHOTO: "signature_with_photo",
+  // NOTE: one-time signature with a video clip recorded while drawing it (signature-field option 'recording')
+  SIGNATURE_WITH_RECORDING: "signature_with_recording",
 };

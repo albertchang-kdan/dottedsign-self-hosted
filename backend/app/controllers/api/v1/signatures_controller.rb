@@ -28,14 +28,14 @@ class Api::V1::SignaturesController < Api::ApplicationController
   end
 
   def create
-    signature = Signature.setup(current_member, signature_params, sign_video: params[:sign_video], sign_photo: params[:sign_photo], sign_stroke: params[:sign_stroke])
+    signature = Signature.setup(current_member, signature_params, sign_video: params[:sign_video], sign_photo: params[:sign_photo], sign_stroke: params[:sign_stroke], **signing_recording_params)
     serialize_response(:signature, signature)
   rescue => error
     error_response(error.key)
   end
 
   def guest_signature
-    guest_signature = GuestSignature.setup(guest_signature_params, sign_video: params[:sign_video], sign_photo: params[:sign_photo], sign_stroke: params[:sign_stroke])
+    guest_signature = GuestSignature.setup(guest_signature_params, sign_video: params[:sign_video], sign_photo: params[:sign_photo], sign_stroke: params[:sign_stroke], **signing_recording_params)
     success_response(guest_signature.display)
   rescue => error
     error_response(error.key)
@@ -58,6 +58,11 @@ class Api::V1::SignaturesController < Api::ApplicationController
   end
 
   private
+
+  # video clip recorded while the signer drew this signature (signature-field option 'recording')
+  def signing_recording_params
+    { sign_recording: params[:sign_recording], recording_info: params.permit(recording_info: [:consented_at, :started_at, :duration_seconds, :mime_type])[:recording_info] }
+  end
 
   def signature_params
     require_attrs = [:file_type, :category, :raw]

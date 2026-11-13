@@ -11,6 +11,7 @@ import Menu from "../../../components/MenuDeveloper";
 import Button from "../../../components/Button";
 
 import ContentAdmin from "../../../containers/ContentAdmin";
+import SigningRecordingPolicy from "../../../containers/SigningRecordingPolicy";
 import { PageWrapper } from "../../../global/styled";
 import {
   Wrapper,
@@ -54,6 +55,11 @@ const SuperAdminSettings = () => {
                       </BlockContent>
                     </Block>
                   </LicenseWrapper>
+                  <Block>
+                    <BlockContent>
+                      <SigningRecordingPolicy />
+                    </BlockContent>
+                  </Block>
                 </Content>
               </WrapperContent>
             </Main>

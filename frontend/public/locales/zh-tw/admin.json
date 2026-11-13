@@ -173,5 +173,12 @@
   "template_share_source_self": "我",
   "template_share_source_others": "其它群組",
 
-  "create_role": "建立角色"
+  "create_role": "建立角色",
+  "signing_recording_policy_title": "簽署錄影",
+  "signing_recording_policy_description": "被錄影的簽署人與超級管理員一律可觀看簽署錄影。請選擇還有哪些人可以觀看。",
+  "signing_recording_policy_visible_to_sender": "文件寄件人",
+  "signing_recording_policy_visible_to_other_signers": "同一份文件的其他簽署人",
+  "signing_recording_policy_saving": "儲存中...",
+  "signing_recording_policy_saved": "已儲存",
+  "signing_recording_policy_error": "儲存失敗，請再試一次。"
 }

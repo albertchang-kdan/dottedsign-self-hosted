@@ -2396,7 +2396,8 @@ function* putSignTask({ payload }) {
           sign.obj.category === SIGNATURE_CATEGORY.INITIAL ||
           sign.obj.category === SIGNATURE_CATEGORY.STAMP ||
           sign.obj.category === SIGNATURE_CATEGORY.GUEST_SIGNATURE ||
-          sign.obj.category === SIGNATURE_CATEGORY.SIGNATURE_WITH_PHOTO;
+          sign.obj.category === SIGNATURE_CATEGORY.SIGNATURE_WITH_PHOTO ||
+          sign.obj.category === SIGNATURE_CATEGORY.SIGNATURE_WITH_RECORDING;
 
         const isImage = sign.obj.category === "image";
 
@@ -3137,7 +3138,16 @@ function* saveSign(action) {
       throw resp.error_code;
     }
 
-    if (data.category === SIGNATURE_CATEGORY.SIGNATURE_WITH_PHOTO && callback) {
+    if (
+      data.category === SIGNATURE_CATEGORY.SIGNATURE_WITH_RECORDING &&
+      callback
+    ) {
+      // NOTE: one-time recorded signature: give it straight to the field
+      callback(resp.data);
+    } else if (
+      data.category === SIGNATURE_CATEGORY.SIGNATURE_WITH_PHOTO &&
+      callback
+    ) {
       const { photoSignatures } = yield select((state) => state.sign);
       const { user } = yield select((state) => state.auth);
 
@@ -3250,6 +3260,12 @@ function* saveSignGuest({ data }) {
       }
     } else {
       if (
+        data.category === SIGNATURE_CATEGORY.SIGNATURE_WITH_RECORDING &&
+        callback
+      ) {
+        // NOTE: one-time recorded signature: give it straight to the field
+        callback(resp.data);
+      } else if (
         data.category === SIGNATURE_CATEGORY.SIGNATURE_WITH_PHOTO &&
         callback
       ) {
@@ -4511,13 +4527,17 @@ function* putKioskSign({ data }) {
       if (type === SIGNATURE_CATEGORY.SIGNATURE_WITH_PHOTO && !value) {
         value = false;
       }
+      if (type === SIGNATURE_CATEGORY.SIGNATURE_WITH_RECORDING && !value) {
+        value = false;
+      }
 
       const isSignature =
         type === SIGNATURE_CATEGORY.SIGNATURE ||
         type === SIGNATURE_CATEGORY.INITIAL ||
         type === SIGNATURE_CATEGORY.STAMP ||
         type === SIGNATURE_CATEGORY.GUEST_SIGNATURE ||
-        type === SIGNATURE_CATEGORY.SIGNATURE_WITH_PHOTO;
+        type === SIGNATURE_CATEGORY.SIGNATURE_WITH_PHOTO ||
+        type === SIGNATURE_CATEGORY.SIGNATURE_WITH_RECORDING;
 
       const isImage = sign.obj.category === "image";
 
@@ -5172,7 +5192,8 @@ function* putPublicFormSign({ isAttaUploaded }) {
         type === SIGNATURE_CATEGORY.INITIAL ||
         type === SIGNATURE_CATEGORY.STAMP ||
         type === SIGNATURE_CATEGORY.GUEST_SIGNATURE ||
-        type === SIGNATURE_CATEGORY.SIGNATURE_WITH_PHOTO;
+        type === SIGNATURE_CATEGORY.SIGNATURE_WITH_PHOTO ||
+        type === SIGNATURE_CATEGORY.SIGNATURE_WITH_RECORDING;
 
       const isImage = sign.obj.category === "image";
 

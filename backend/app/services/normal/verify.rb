@@ -52,6 +52,7 @@ module Normal
       field_setting_check
       field_setting_group_check
       attachment_check
+      signing_recording_check
     rescue => error
       raise processed_executable_error(error)
     end
@@ -97,6 +98,14 @@ module Normal
       allow_attachment_ids = @stage.attachment_setting.pluck('attachment_id')
       raise ServiceError.new(:attachment_setting_not_found) if attachment_ids.present? && (attachment_ids - allow_attachment_ids).present?
       raise ServiceError.new(:attachment_not_ready, attachment_upload_data)
+    end
+
+    # Signature-field option 'recording': each such signature is recorded on video in the signature pad and
+    # checked per field (FieldSettings::Signature#match_content?). The mobile app cannot record, and
+    # field checks are skipped for it, so its signers are asked to use a web browser instead.
+    def signing_recording_check
+      return unless @stage&.signing_recording_required?
+      raise ServiceError.new(:signing_recording_needs_browser) if @client_info[:client] == 'app'
     end
 
     def attachment_upload_data

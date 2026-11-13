@@ -688,3 +688,6 @@ duplicate_visible_ca_setting:
 need_super_admin:
   error_code: 400_1318
   error_message: need super admin
+signing_recording_needs_browser:
+  error_code: 400_1319
+  error_message: this document requires a video recording while signing; please open it in a web browser

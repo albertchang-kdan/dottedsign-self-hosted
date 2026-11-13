@@ -159,6 +159,10 @@ Rails.application.routes.draw do
           get 'audit_trail'
         end
 
+        scope module: :recording do
+          get 'signing_recordings'
+        end
+
         scope module: :notify do
           post 'email_me'
           post 'email_signer'
@@ -281,6 +285,9 @@ Rails.application.routes.draw do
           put 'compress'
         end
       end
+
+      get 'system_settings/signing_recording', to: 'system_settings#signing_recording'
+      put 'system_settings/signing_recording', to: 'system_settings#update_signing_recording'
 
       namespace :files do
         post 'upload/:code', action: :upload, as: :upload

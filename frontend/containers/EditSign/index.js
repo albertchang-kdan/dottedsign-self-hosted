@@ -56,6 +56,7 @@ const EditSignContainer = ({ isViewOnly }) => {
       newObj.type = fieldTypes.sign;
       newObj.options.force = true;
       newObj.options.photo = false;
+      newObj.options.recording = false;
       newObj.text = panel.text;
     }
     // NOTE: date

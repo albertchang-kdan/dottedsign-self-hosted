@@ -149,5 +149,12 @@
   "template_share_source_self": "Self",
   "template_share_source_others": "Groups",
 
-  "create_role": "Create Role"
+  "create_role": "Create Role",
+  "signing_recording_policy_title": "Signing recordings",
+  "signing_recording_policy_description": "The recorded signer and super admins can always watch a signing recording. Choose who else may watch them.",
+  "signing_recording_policy_visible_to_sender": "Sender of the document",
+  "signing_recording_policy_visible_to_other_signers": "Other signers of the same document",
+  "signing_recording_policy_saving": "Saving...",
+  "signing_recording_policy_saved": "Saved",
+  "signing_recording_policy_error": "Could not save. Please try again."
 }
