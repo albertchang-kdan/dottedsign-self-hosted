@@ -199,11 +199,9 @@ export const clearRecordingConsent = () => {
   consentedAt = null;
 };
 
-// NOTE: base64 (without the data: prefix) to send the clip with the signature
-export const blobToBase64 = (blob) =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result).split(",")[1] || "");
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(blob);
-  });
+// NOTE: the clip as a named file, uploaded as multipart with the signature
+export const recordingFile = (blob) => {
+  const type = blob.type || "video/webm";
+  const extension = type.includes("mp4") ? "mp4" : "webm";
+  return new File([blob], `signing_recording.${extension}`, { type });
+};

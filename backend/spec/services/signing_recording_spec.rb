@@ -41,6 +41,17 @@ RSpec.describe 'Signing recording', type: :model do
       expect(signature.recording_info).to include('consented_at' => 1_700_000_000, 'duration_seconds' => 4, 'mime_type' => 'video/webm')
     end
 
+    it 'accepts the clip as an uploaded file (multipart)' do
+      signature = FactoryBot.create(:signature, member: @signer, category: 'signature_with_recording')
+      tempfile = Tempfile.new(['clip', '.webm']).tap { |file| file.binmode; file.write(Base64.decode64(WEBM_BASE64)); file.rewind }
+      upload = Rack::Test::UploadedFile.new(tempfile.path, 'video/webm', true)
+      signature.attach_signing_recording(upload, duration_seconds: 2)
+      expect(signature.recording_file).to be_present
+      expect(signature.recording_info['duration_seconds']).to eq(2)
+    ensure
+      tempfile&.close!
+    end
+
     it 'rejects files that are not video' do
       signature = FactoryBot.create(:signature, member: @signer, category: 'signature_with_recording')
       not_video = Base64.strict_encode64('just some text, not a video')
@@ -114,6 +125,7 @@ RSpec.describe 'Signing recording', type: :model do
     end
 
     before(:each) do
+      require_recording
       @clip = recorded_signature(field: @field)
       @other_stage = FactoryBot.create(:a_sign_stage, sequence: 2, sign_task: @task)
     end
@@ -132,6 +144,12 @@ RSpec.describe 'Signing recording', type: :model do
       expect(viewable_for(@other_stage.actor, { 'visible_to_other_signers' => true })).to eq([@clip])
     end
 
+    it 'only looks at fields set to record video, and skips the signature search when there are none' do
+      @field.update!(options: @field.options.merge('recording' => false))
+      expect(Signature).not_to receive(:field_bound_category)
+      expect(viewable_for(@signer)).to be_empty
+    end
+
     it 'always shows clips to super admins' do
       allow(@sender).to receive(:super_admin?).and_return(true)
       expect(viewable_for(@sender)).to eq([@clip])
@@ -140,7 +158,7 @@ RSpec.describe 'Signing recording', type: :model do
     it 'matches kiosk signers by the email they entered' do
       kiosk_stage = FactoryBot.create(:dummy_stage, source: @task, sequence: 3, status: 'processing',
                                                     actor_info: { 'email' => 'walk-in@test.com', 'role' => 'visitor' })
-      kiosk_field = FactoryBot.create(:field_setting, :signature, source: @task, stage: kiosk_stage)
+      kiosk_field = require_recording(FactoryBot.create(:field_setting, :signature, source: @task, stage: kiosk_stage))
       kiosk_clip = recorded_signature(field: kiosk_field, klass: :guest)
       walk_in = FactoryBot.create(:member, name: 'Walk In', email: 'Walk-In@test.com')
       expect(viewable_for(walk_in)).to eq([kiosk_clip])
@@ -149,7 +167,7 @@ RSpec.describe 'Signing recording', type: :model do
     it 'never lets the shared public-form system account watch, only the email the form signer entered' do
       form_stage = FactoryBot.create(:form_processing_sign_stage, sign_task: @task, sequence: 4)
       form_stage.update!(actor_info: form_stage.actor_info.merge('email' => 'form-signer@test.com'))
-      form_field = FactoryBot.create(:field_setting, :signature, source: @task, stage: form_stage)
+      form_field = require_recording(FactoryBot.create(:field_setting, :signature, source: @task, stage: form_stage))
       form_clip = recorded_signature(field: form_field, klass: :guest)
 
       expect(viewable_for(form_stage.actor)).to be_empty
@@ -160,7 +178,7 @@ RSpec.describe 'Signing recording', type: :model do
     it 'covers envelopes' do
       envelope = FactoryBot.create(:me_signer_waiting_envelope)
       envelope_stage = envelope.dummy_stages.find { |stage| stage.actor_id.present? }
-      envelope_field = FactoryBot.create(:field_setting, :signature, source: envelope, stage: envelope_stage)
+      envelope_field = require_recording(FactoryBot.create(:field_setting, :signature, source: envelope, stage: envelope_stage))
       envelope_clip = recorded_signature(field: envelope_field)
 
       expect(viewable_for(envelope_stage.actor, source: envelope)).to eq([envelope_clip])

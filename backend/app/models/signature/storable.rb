@@ -34,13 +34,17 @@ class Signature
       (other_info || {})['recording'] || {}
     end
 
-    def attach_signing_recording(recording_base64, info = {})
-      return if recording_base64.blank?
-      content = Base64.decode64(recording_base64)
-      file_type = MimeMagic.by_magic(StringIO.new(content))&.type&.split('/')&.last
+    # recording: an uploaded file (multipart, streamed from its tempfile) or, for older clients, base64 text
+    def attach_signing_recording(recording, info = {})
+      return if recording.blank?
+      io = recording.respond_to?(:tempfile) ? recording.tempfile : StringIO.new(Base64.decode64(recording.to_s))
+      io.rewind
+      file_type = MimeMagic.by_magic(io)&.type&.split('/')&.last
       raise ServiceError.new(:invalid_file_type) if ServiceFile::SIGNING_RECORDING_FILE_TYPES.exclude?(file_type)
+      io.rewind
       extension = file_type == 'mp4' ? 'mp4' : 'webm'
-      upload_media_file(ServiceFile::SIGNING_RECORDING_LABEL, StringIO.new(content), "video/#{extension}", "signing_recording.#{extension}")
+      # skip_callback: the upload worker has nothing to do for recordings
+      upload_media_file(ServiceFile::SIGNING_RECORDING_LABEL, io, "video/#{extension}", "signing_recording.#{extension}", skip_callback: true)
       info = (info || {}).to_h.with_indifferent_access
       update!(other_info: (other_info || {}).merge('recording' => {
         'consented_at' => info[:consented_at].presence&.to_i,

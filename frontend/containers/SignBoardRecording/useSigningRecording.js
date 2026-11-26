@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   RECORDING_STATUS,
-  blobToBase64,
+  recordingFile,
   getRecordingConsent,
   getRecordingStream,
   giveRecordingConsent,
@@ -94,7 +94,8 @@ const useSigningRecording = (enabled) => {
       return null;
     }
     return {
-      sign_recording: await blobToBase64(result.blob),
+      // NOTE: sent as a multipart file upload (see helpers/apiHelper toFormData)
+      sign_recording: recordingFile(result.blob),
       recording_info: result.info,
     };
   }, [enabled]);

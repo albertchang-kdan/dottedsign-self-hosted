@@ -39,8 +39,12 @@ const SignBoardRecording = ({ onPanelClose, setSignature, signId }) => {
     };
   }, []);
 
-  // NOTE: pen replay frames, used by the existing SIGN_VIDEO license feature
+  // NOTE: pen replay frames, used only by the licensed SIGN_VIDEO feature: snapshotting the
+  // canvas 10 times a second is costly, so skip it when that feature is not licensed
   const getAndSetFrame = async () => {
+    if (!license) {
+      return;
+    }
     const canvas = refCanvas.current;
     const signFrame = await canvas.replaceDataURLBackground(
       canvas.toDataURL("image/png"),
@@ -49,8 +53,11 @@ const SignBoardRecording = ({ onPanelClose, setSignature, signId }) => {
   };
 
   const onStart = () => {
-    getAndSetFrame();
     clearInterval(timer.current);
+    if (!license) {
+      return;
+    }
+    getAndSetFrame();
     timer.current = setInterval(() => {
       getAndSetFrame();
     }, 100);

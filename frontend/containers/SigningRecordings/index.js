@@ -67,14 +67,22 @@ const formatDuration = (seconds) => {
 // (rules decided by the server). Hidden when there is nothing to show.
 const SigningRecordings = () => {
   const { t } = useTranslation("modal");
-  const { task_id, envelope_id, code, isSigningDone, isMyTurn } = useSelector(
-    (state) => state.sign,
-  );
+  const { task_id, envelope_id, code, isSigningDone, isMyTurn, taskBlocks } =
+    useSelector((state) => state.sign);
   const [recordings, setRecordings] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
 
+  // NOTE: only ask the server when this document has a signature field set to record video.
+  // Envelopes spread fields over several files, so they always ask (the server answers quickly
+  // when no field records).
+  const hasRecordingFields =
+    !!envelope_id ||
+    !!taskBlocks?.some((task) =>
+      task.blocks?.some((block) => block.options?.recording),
+    );
+
   useEffect(() => {
-    if (!task_id && !envelope_id) {
+    if ((!task_id && !envelope_id) || !hasRecordingFields) {
       return undefined;
     }
     let isActive = true;
@@ -90,7 +98,7 @@ const SigningRecordings = () => {
     return () => {
       isActive = false;
     };
-  }, [task_id, envelope_id, code, isSigningDone, isMyTurn]);
+  }, [task_id, envelope_id, code, isSigningDone, isMyTurn, hasRecordingFields]);
 
   if (recordings.length === 0) {
     return null;
@@ -132,7 +140,7 @@ const SigningRecordings = () => {
                   <Video
                     src={recording.download_link}
                     controls
-                    preload="metadata"
+                    preload="none"
                     playsInline
                   />
                 </Entry>

@@ -67,25 +67,35 @@ class SigningRecordingAccess
     @stages ||= @source.is_a?(Envelope) ? @source.dummy_stages.to_a : (@source.sign_stages.to_a + @source.dummy_stages.to_a)
   end
 
-  def field_settings_by_id
-    @field_settings_by_id ||= begin
+  # only signature fields set to record video can have clips
+  def recording_fields_by_id
+    @recording_fields_by_id ||= begin
       sources = @source.is_a?(Envelope) ? [@source, *@source.sign_tasks] : [@source]
-      conditions = sources.map { |source| FieldSetting.where(source: source) }
-      conditions.reduce { |all, condition| all.or(condition) }.includes(:stage).index_by(&:id)
+      conditions = sources.map { |source| FieldSetting.where(source: source, field_type: 'signature') }
+      conditions.reduce { |all, condition| all.or(condition) }
+                .includes(:stage).to_a
+                .select { |field| field.respond_to?(:recording?) && field.recording? }
+                .index_by(&:id)
     end
   end
 
   def clips
-    @clips ||= begin
-      field_ids = field_settings_by_id.keys.map(&:to_s)
-      signatures = field_ids.empty? ? [] : [Signature, GuestSignature].flat_map do |klass|
-        klass.field_bound_category.where("other_info ->> 'field_setting_id' IN (?)", field_ids).to_a
-      end
-      signatures.filter_map do |signature|
-        file = signature.recording_file
-        stage = field_settings_by_id[signature.other_info['field_setting_id'].to_i]&.stage
-        Clip.new(file, signature, stage) if file && stage
-      end.sort_by { |clip| clip.file.uploaded_at || Time.zone.at(0) }
+    # no recorded fields (most documents): answer without touching the signature tables
+    @clips ||= recording_fields_by_id.empty? ? [] : load_clips
+  end
+
+  def load_clips
+    # one JSON containment test per field, so PostgreSQL can use the GIN (jsonb_path_ops) index on other_info
+    condition = Array.new(recording_fields_by_id.size, 'other_info @> ?').join(' OR ')
+    values = recording_fields_by_id.keys.map { |id| { field_setting_id: id }.to_json }
+    signatures = [Signature, GuestSignature].flat_map do |klass|
+      klass.field_bound_category.where(condition, *values).includes(:uploaded_files).to_a
     end
+
+    signatures.filter_map do |signature|
+      file = signature.uploaded_files.find { |uploaded| uploaded.label == ServiceFile::SIGNING_RECORDING_LABEL }
+      stage = recording_fields_by_id[signature.other_info['field_setting_id'].to_i]&.stage
+      Clip.new(file, signature, stage) if file && stage
+    end.sort_by { |clip| clip.file.uploaded_at || Time.zone.at(0) }
   end
 end

@@ -1,10 +1,10 @@
 import {
   RECORDING_STATUS,
-  blobToBase64,
   clearRecordingConsent,
   getRecordingConsent,
   getRecordingInfo,
   giveRecordingConsent,
+  recordingFile,
   getRecordingStatus,
   isRecordingSupported,
   resetRecording,
@@ -133,10 +133,12 @@ describe("signingRecorder", () => {
     clearRecordingConsent();
   });
 
-  it("converts the clip to base64 to save with the signature", async () => {
-    const base64 = await blobToBase64(
-      new Blob(["abc"], { type: "video/webm" }),
+  it("wraps the clip as a named file to upload with the signature", () => {
+    const webm = recordingFile(new Blob(["abc"], { type: "video/webm" }));
+    expect(webm.name).toBe("signing_recording.webm");
+    expect(webm.type).toBe("video/webm");
+    expect(recordingFile(new Blob(["abc"], { type: "video/mp4" })).name).toBe(
+      "signing_recording.mp4",
     );
-    expect(base64).toBe("YWJj");
   });
 });

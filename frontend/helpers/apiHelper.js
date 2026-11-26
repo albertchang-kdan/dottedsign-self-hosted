@@ -4,6 +4,7 @@ import queryString from "query-string";
 import getAPIHost from "./getAPIHost";
 import { withCSRFToken } from "../helpers/csrf/client";
 import { findNonSnakeCaseKey } from "./validateRequestData";
+import { hasFileValue, toFormData } from "./formData";
 import getConfig from "next/config";
 
 const { publicRuntimeConfig } = getConfig();
@@ -61,6 +62,11 @@ export const invokeApi = ({
     stringified = queryString.stringify(dataManified, {
       arrayFormat: "bracket",
     });
+  } else if (hasFileValue(dataManified)) {
+    // NOTE: files (e.g. a signing recording) go as multipart, not base64 in JSON;
+    // the browser sets the multipart Content-Type with its boundary
+    delete options.headers["Content-type"];
+    options.body = toFormData(dataManified);
   } else {
     options.body = JSON.stringify(dataManified);
   }
